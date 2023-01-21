@@ -7,6 +7,8 @@ set_target_properties(clam PROPERTIES
 )
 
 target_link_libraries(clam PRIVATE
+    hexed
+    blessed
     spdlog
     z
 )
