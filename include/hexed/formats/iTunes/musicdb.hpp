@@ -1,0 +1,6 @@
+#ifndef HEXED_ITUNES_MUSICDB_HPP_
+#define HEXED_ITUNES_MUSICDB_HPP_
+
+
+
+#endif

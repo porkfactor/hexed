@@ -1,69 +1,9 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <cctype>
-#include <cstdint>
-#include <fcntl.h>
-#include <unistd.h>
+#ifndef HEXED_ITUNES_ITL_HPP_
+#define HEXED_ITUNES_ITL_HPP_
 
 #include <codecvt>
 
-#include "detail/envelope.hpp"
-#include "detail/section.hpp"
-#include "detail/hohm.hpp"
-
-#include "hexed/track.hpp"
-#include "hexed/library.hpp"
-#include "hexed/playlist.hpp"
-
-#include <sys/mman.h>
-
-#include <span>
-
-#include <blessed/bit.hpp>
-
-#include <spdlog/spdlog.h>
-
-#include <memory>
-
-#include <zlib.h>
-
-#include <compression.h>
-
-#include <CommonCrypto/CommonCryptor.h>
-
-struct mapping
-{
-public:
-    mapping(std::string const &path)
-    {
-        int fd = -1;
-        struct stat st;
-
-        if((fd = ::open(path.c_str(), O_RDONLY)) >= 0)
-        {
-            ::fstat(fd, &st);
-            if((ptr_ = ::mmap(nullptr, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0)) != MAP_FAILED)
-            {
-
-            }
-
-            ::close(fd);
-        }
-    }
-
-    ~mapping()
-    {
-        ::munmap(ptr_, size_);
-    }
-
-    void *data() { return ptr_; }
-    size_t size() const { return size_; }
-
-private:
-    void *ptr_;
-    size_t size_;
-};
+#include <hexed/LibraryFormat.hpp>
 
 void log_uint32(void const *data, size_t szData)
 {
@@ -797,17 +737,11 @@ namespace hexed
             mapping mapping_;
         };
     }
-}
 
-int main(int argc, char const *argv[])
-{
-    if(argc > 1)
+    class ITLFormat : public LibraryFormat
     {
-        hexed::itl::thinger thinger(argv[1]);
-        hexed::ImmutableLibrary library;
 
-        thinger.process(library);
-    }
-
-    return 0;
+    };
 }
+
+#endif

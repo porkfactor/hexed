@@ -8,7 +8,7 @@ namespace hexed
     public:
 
     protected:
-        Library() {}
+        Library();
 
     private:
     };
@@ -33,5 +33,7 @@ namespace hexed
     private:
     };
 }
+
+#include <hexed/impl/Library.hpp>
 
 #endif

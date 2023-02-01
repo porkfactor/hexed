@@ -1,5 +1,5 @@
-#ifndef HEXED_ITL_DETAIL_BUFFER_HPP_
-#define HEXED_ITL_DETAIL_BUFFER_HPP_
+#ifndef HEXED_ITUNES_DETAIL_BUFFER_HPP_
+#define HEXED_ITUNES_DETAIL_BUFFER_HPP_
 
 #include <type_traits>
 
@@ -8,7 +8,7 @@
 
 namespace hexed
 {
-    namespace itl
+    namespace itunes
     {
         namespace detail
         {

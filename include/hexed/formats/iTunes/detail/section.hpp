@@ -1,11 +1,11 @@
-#ifndef HEXED_ITL_DETAIL_SECTION_HPP_
-#define HEXED_ITL_DETAIL_SECTION_HPP_
+#ifndef HEXED_ITUNES_DETAIL_SECTION_HPP_
+#define HEXED_ITUNES_DETAIL_SECTION_HPP_
 
 #include "header.hpp"
 
 namespace hexed
 {
-    namespace itl
+    namespace itunes
     {
         namespace detail
         {
