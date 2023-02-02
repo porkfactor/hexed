@@ -1,5 +1,5 @@
-#ifndef HEXED_LIBRARY_READER_HPP_
-#define HEXED_LIBRARY_READER_HPP_
+#ifndef HEXED_LIBRARY_FORMAT_READER_HPP_
+#define HEXED_LIBRARY_FORMAT_READER_HPP_
 
 #include <memory>
 
@@ -7,10 +7,10 @@
 
 namespace hexed
 {
-    class LibraryReader
+    class LibraryFormatReader
     {
     public:
-        virtual ~LibraryReader() {}
+        virtual ~LibraryFormatReader() {}
 
         virtual std::unique_ptr<Library> read() = 0;
     private:

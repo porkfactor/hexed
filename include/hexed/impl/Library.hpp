@@ -1,5 +1,5 @@
-#ifndef HEXED_IMPL_LIBRARY_HPP_
-#define HEXED_IMPL_LIBRARY_HPP_
+#ifndef HEXED_LIBRARY_IPP_
+#define HEXED_LIBRARY_IPP_
 
 #include <hexed/Library.hpp>
 

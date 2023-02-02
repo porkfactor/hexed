@@ -1,7 +1,7 @@
 #ifndef HEXED_ITUNES_DETAIL_ENVELOPE_HPP_
 #define HEXED_ITUNES_DETAIL_ENVELOPE_HPP_
 
-#include "header.hpp"
+#include <hexed/formats/iTunes/detail/segment.hpp>
 
 namespace hexed
 {

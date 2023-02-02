@@ -5,13 +5,12 @@
 
 namespace hexed
 {
-    namespace itl
+    namespace itunes
     {
         namespace detail
         {
             template<blessed::endian _Order>
-            struct hohm :
-                public data_segment<_Order>
+            struct hohm
             {
             public:
                 enum
@@ -43,12 +42,15 @@ namespace hexed
                 };  
 
                 hohm(void const *data, size_t szData) :
-                    data_segment<_Order>(data, szData)
+                    segment_(data, szData)
                 {}
 
                 uint32_t type() const { return this->uint32(12); }
 
                 std::string utf8() const { return ""; }
+
+            private:
+                data_segment<_Order> segment_;
             };
         }
     }

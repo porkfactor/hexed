@@ -1,7 +1,9 @@
-#ifndef HEXED_IMPL_LIBRARY_FORMAT_MANAGER_IPP_
-#define HEXED_IMPL_LIBRARY_FORMAT_MANAGER_IPP_
+#ifndef HEXED_LIBRARY_FORMAT_MANAGER_IPP_
+#define HEXED_LIBRARY_FORMAT_MANAGER_IPP_
 
 #include <hexed/LibraryFormatManager.hpp>
+
+#include <hexed/formats/iTunes/ITLFormat.hpp>
 
 namespace hexed
 {
@@ -14,7 +16,7 @@ namespace hexed
     
     void LibraryFormatManager::registerBasicFormats()
     {
-        registerFormat(new iTunesITLFormat());
+        registerFormat(new hexed::itunes::ITLFormat(), false);
     }
 }
 

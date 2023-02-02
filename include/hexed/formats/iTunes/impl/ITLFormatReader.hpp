@@ -1,10 +1,9 @@
-#ifndef HEXED_ITUNES_ITL_HPP_
-#define HEXED_ITUNES_ITL_HPP_
+#ifndef HEXED_ITUNES_IMPL_ITL_FORMAT_READER_HPP_
+#define HEXED_ITUNES_IMPL_ITL_FORMAT_READER_HPP_
 
-#include <codecvt>
+#include <hexed/formats/iTunes/detail/file.hpp>
 
-#include <hexed/LibraryFormat.hpp>
-
+#if 0
 void log_uint32(void const *data, size_t szData)
 {
     uint32_t const *ptr = static_cast<decltype(ptr)>(data);
@@ -734,14 +733,34 @@ namespace hexed
                 process_data(library, uncompressed.get(), szData);
             }
         private:
-            mapping mapping_;
+            detail::MemoryMappedFile mapping_;
         };
     }
+}
+#endif
 
-    class ITLFormat : public LibraryFormat
+namespace hexed
+{
+    namespace itunes
     {
+        ITLFormatReader::ITLFormatReader()
+        {
 
-    };
+        }
+
+        ITLFormatReader::~ITLFormatReader()
+        {
+
+        }
+
+        std::unique_ptr<hexed::Library> ITLFormatReader::read()
+        {
+            std::unique_ptr<hexed::Library> library(new hexed::ImmutableLibrary());
+            detail::file f("");
+
+            return library;
+        }
+    }
 }
 
 #endif

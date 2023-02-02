@@ -3,13 +3,15 @@
 
 namespace hexed
 {
+    class LibraryFormatReader;
+
     class LibraryFormat
     {
     public:
         LibraryFormat();
         virtual ~LibraryFormat();
 
-        
+        virtual LibraryFormatReader *createReader() = 0;
 
     private:
     };

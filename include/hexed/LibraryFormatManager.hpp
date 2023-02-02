@@ -2,7 +2,7 @@
 #define HEXED_LIBRARY_FORMAT_MANAGER_HPP_
 
 #include <hexed/LibraryFormat.hpp>
-#include <hexed/LibraryReader.hpp>
+#include <hexed/LibraryFormatReader.hpp>
 
 namespace hexed
 {

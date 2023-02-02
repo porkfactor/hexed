@@ -1,5 +1,5 @@
-#ifndef HEXED_IMPL_ALBUM_HPP_
-#define HEXED_IMPL_ALBUM_HPP_
+#ifndef HEXED_ALBUM_IPP_
+#define HEXED_ALBUM_IPP_
 
 #include <hexed/Album.hpp>
 
@@ -12,7 +12,7 @@ namespace hexed
 
     Album::~Album()
     {
-        
+
     }
 }
 
