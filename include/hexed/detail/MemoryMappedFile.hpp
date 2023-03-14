@@ -7,6 +7,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
+#include <blessed/span.hpp>
+
 namespace hexed
 {
     namespace detail
@@ -21,10 +23,12 @@ namespace hexed
 
                 if((fd = ::open(path.c_str(), O_RDONLY)) >= 0)
                 {
+                    void *ptr{};
                     ::fstat(fd, &st);
-                    if((ptr_ = ::mmap(nullptr, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0)) != MAP_FAILED)
-                    {
 
+                    if((ptr = ::mmap(nullptr, st.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0)) != MAP_FAILED)
+                    {
+                        data_ = blessed::span<blessed::byte>(static_cast<blessed::byte *>(ptr), st.st_size);
                     }
 
                     ::close(fd);
@@ -33,15 +37,13 @@ namespace hexed
 
             ~MemoryMappedFile()
             {
-                ::munmap(ptr_, size_);
+                ::munmap(data_.data(), data_.size());
             }
 
-            void *data() { return ptr_; }
-            size_t size() const { return size_; }
+            inline blessed::span<blessed::byte> const &data() const noexcept { return data_; }
 
         private:
-            void *ptr_;
-            size_t size_;
+            blessed::span<blessed::byte> data_;
         };
     }
 }

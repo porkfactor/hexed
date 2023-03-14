@@ -1,5 +1,5 @@
-#ifndef HEXED_ITUNES_IMPL_ITL_FORMAT_HPP_
-#define HEXED_ITUNES_IMPL_ITL_FORMAT_HPP_
+#ifndef HEXED_ITUNES_ITL_FORMAT_IPP_
+#define HEXED_ITUNES_ITL_FORMAT_IPP_
 
 #include <hexed/formats/iTunes/ITLFormatReader.hpp>
 

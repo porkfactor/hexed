@@ -12,7 +12,7 @@ namespace hexed
     public:
         virtual ~LibraryFormatReader() {}
 
-        virtual std::unique_ptr<Library> read() = 0;
+        virtual std::unique_ptr<Library> read(std::string const &s) = 0;
     private:
     };
 }

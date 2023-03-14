@@ -10,9 +10,19 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class hdfm : public data_segment<_Order>
+            class hdfm : public basic_segment<_Order>
             {
+            public:
+                hdfm(blessed::span<blessed::byte> s) :
+                    basic_segment<_Order>(s)
+                {
+                    assert(this->mnemonic() == identifier());
+                }
 
+                static constexpr uint32_t identifier()
+                {
+                    return char2uint<_Order>("hdfm");
+                }
             };
         }
     }

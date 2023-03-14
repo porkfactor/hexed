@@ -5,6 +5,7 @@
 
 #include <blessed/bit.hpp>
 #include <blessed/byteswap.hpp>
+#include <blessed/span.hpp>
 
 namespace hexed
 {
@@ -13,13 +14,15 @@ namespace hexed
         namespace detail
         {
             template <blessed::endian _Order>
-            struct buffer
+            struct segment_buffer
             {
-                buffer(void const *data, size_t szData) :
-                    data_(data),
-                    szData_(szData)
-                {
-                }
+                segment_buffer(blessed::span<blessed::byte> s) :
+                    data_(s)
+                {}
+
+                segment_buffer(segment_buffer const &other) :
+                    data_(other.data_)
+                {}
 
                 template <blessed::endian _O = _Order, typename std::enable_if<_O == blessed::endian::big, bool>::type = true>
                 uint16_t uint16(size_t offset) const
@@ -51,21 +54,28 @@ namespace hexed
                     return be64toh(value<uint64_t>(offset));
                 }
 
-                template <typename _Type>
-                _Type value(size_t offset) const
+                template <typename _Type = void>
+                _Type const *reinterpret_as(size_t offset) const
                 {
-                    return *byte_index<_Type>(offset);
+                    return blessed::reinterpret_as<_Type const>(data_.subspan(offset));
                 }
 
-                template <typename _Type = void>
-                _Type const *byte_index(size_t offset) const
+                inline blessed::span<blessed::byte> const &data() const noexcept
                 {
-                    return reinterpret_cast<_Type const *>(static_cast<char const *>(data_) + offset);
+                    return data_;
+                }
+
+            protected:
+                template<typename _Type, blessed::enable_if_t<std::is_trivially_copyable<_Type>::value, bool> = true>
+                _Type value(std::size_t offset) const noexcept
+                {
+                    _Type v;
+                    std::memcpy(&v, &data_[offset], sizeof(_Type));
+                    return v;
                 }
 
             private:
-                void const *data_;
-                size_t szData_;
+                blessed::span<blessed::byte> data_;
             };
         }
     }

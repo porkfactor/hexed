@@ -1,5 +1,5 @@
-#ifndef HEXED_ITUNES_DETAIL_HPLM_HPP_
-#define HEXED_ITUNES_DETAIL_HPLM_HPP_
+#ifndef HEXED_ITUNES_DETAIL_HTLM_HPP_
+#define HEXED_ITUNES_DETAIL_HTLM_HPP_
 
 #include <hexed/formats/iTunes/detail/segment.hpp>
 
@@ -10,14 +10,16 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class hplm : array_segment<_Order>
+            class htlm : public array_segment<_Order>
             {
             public:
-                hplm(blessed::span<blessed::byte> s) :
+                htlm(blessed::span<blessed::byte> s) :
                     array_segment<_Order>(s)
                 {
                     
                 }
+
+                static uint32_t constexpr identifier() { return char2uint<_Order>("htlm"); }
 
             private:
             };

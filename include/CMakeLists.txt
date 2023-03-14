@@ -12,5 +12,10 @@ target_include_directories(hexed INTERFACE
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+target_link_libraries(hexed INTERFACE
+    z
+    spdlog
+)
+
 add_subdirectory("blessed")
 add_subdirectory("hexed")

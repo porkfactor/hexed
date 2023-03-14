@@ -1,5 +1,5 @@
-#ifndef HEXED_ITUNES_DETAIL_HALM_HPP_
-#define HEXED_ITUNES_DETAIL_HALM_HPP_
+#ifndef HEXED_ITUNES_DETAIL_HTIM_HPP_
+#define HEXED_ITUNES_DETAIL_HTIM_HPP_
 
 #include <hexed/formats/iTunes/detail/segment.hpp>
 
@@ -10,16 +10,16 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class halm : public array_segment<_Order>
+            class htim : public dictionary_segment<_Order>
             {
             public:
-                halm(void const *data, size_t szData) :
-                    array_segment<_Order>(data, szData)
+                htim(void const *data, size_t szData) : 
+                    dictionary_segment<_Order>(data, szData)
                 {
                     assert(this->mnemonic() == identifier());
                 }
 
-                static uint32_t const identifier() { return char2uint<_Order>("halm"); }
+                static uint32_t constexpr identifier() { return char2uint<_Order>("htim"); }
 
             private:
             };

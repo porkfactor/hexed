@@ -10,17 +10,18 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class halm
+            class hiim : public dictionary_segment<_Order>
             {
             public:
                 hiim(void const *data, size_t szData) : 
-                    segment_(data, szData)
+                    dictionary_segment<_Order>(data, szData)
                 {
-
+                    assert(this->mnemonic() == identifier());
                 }
 
+                static uint32_t constexpr identifier() { return char2uint<_Order>("hiim"); }
+
             private:
-                dictionary_segment<_Order> segment_;
             };
         }
     }

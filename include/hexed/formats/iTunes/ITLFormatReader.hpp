@@ -13,7 +13,8 @@ namespace hexed
             ITLFormatReader();
             ~ITLFormatReader() override;
 
-            std::unique_ptr<hexed::Library> read() override;
+            std::unique_ptr<hexed::Library> read(std::string const &path) override;
+
         private:
         };
     }

@@ -10,11 +10,11 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class hilm : 
+            class hilm : array_segment<_Order>
             {
             public:
-                hilm(void const *data, size_t szData) :
-                    segment_(data, szData)
+                hilm(blessed::span<blessed::byte> s) :
+                    array_segment<_Order>(s)
                 {
                     
                 }

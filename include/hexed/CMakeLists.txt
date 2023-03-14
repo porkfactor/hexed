@@ -11,4 +11,5 @@ target_sources(hexed PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/Track.hpp    
 )
 
+add_subdirectory("detail")
 add_subdirectory("impl")

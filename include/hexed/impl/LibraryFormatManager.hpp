@@ -11,12 +11,19 @@ namespace hexed
     {
         bool rv{false};
 
+        formats_.emplace(0, std::move(std::unique_ptr<LibraryFormat>(format)));
+
         return rv;
     }
     
     void LibraryFormatManager::registerBasicFormats()
     {
         registerFormat(new hexed::itunes::ITLFormat(), false);
+    }
+
+    LibraryFormat *LibraryFormatManager::findFormatForFileExtension(std::string const &s)
+    {
+        return formats_[0].get();
     }
 }
 

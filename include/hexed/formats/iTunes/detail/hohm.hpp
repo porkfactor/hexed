@@ -1,7 +1,7 @@
 #ifndef HEXED_ITUNES_DETAIL_HOHM_HPP_
 #define HEXED_ITUNES_DETAIL_HOHM_HPP_
 
-#include "header.hpp"
+#include <hexed/formats/iTunes/detail/segment.hpp>
 
 namespace hexed
 {
@@ -10,7 +10,7 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            struct hohm
+            struct hohm : public data_segment<_Order>
             {
             public:
                 enum
@@ -41,16 +41,19 @@ namespace hexed
                     library_name = 0x1fc,
                 };  
 
-                hohm(void const *data, size_t szData) :
-                    segment_(data, szData)
-                {}
+                hohm(blessed::span<blessed::byte> s) :
+                    data_segment<_Order>(s)
+                {
+                    assert(this->mnemonic() == identifier());
+                }
 
-                uint32_t type() const { return this->uint32(12); }
+                static uint32_t constexpr identifier() { return char2uint<_Order>("hohm"); }
+
+                uint32_t type() const { return this->buffer().uint32(12); }
 
                 std::string utf8() const { return ""; }
 
             private:
-                data_segment<_Order> segment_;
             };
         }
     }
