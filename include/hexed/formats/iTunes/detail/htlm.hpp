@@ -16,10 +16,13 @@ namespace hexed
                 htlm(blessed::span<blessed::byte> s) :
                     array_segment<_Order>(s)
                 {
-                    
+                    assert(this->mnemonic() == identifier());
                 }
 
-                static uint32_t constexpr identifier() { return char2uint<_Order>("htlm"); }
+                static constexpr uint32_t identifier()
+                {
+                    return char2uint<_Order>("htlm");
+                }
 
             private:
             };

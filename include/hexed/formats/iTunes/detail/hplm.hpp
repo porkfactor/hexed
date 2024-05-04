@@ -10,13 +10,18 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class hplm : array_segment<_Order>
+            class hplm : public array_segment<_Order>
             {
             public:
                 hplm(blessed::span<blessed::byte> s) :
                     array_segment<_Order>(s)
                 {
-                    
+                    assert(this->mnemonic() == identifier());
+                }
+
+                static constexpr uint32_t identifier()
+                {
+                    return char2uint<_Order>("hplm");
                 }
 
             private:

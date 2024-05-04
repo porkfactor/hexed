@@ -13,13 +13,16 @@ namespace hexed
             class hiim : public dictionary_segment<_Order>
             {
             public:
-                hiim(void const *data, size_t szData) : 
-                    dictionary_segment<_Order>(data, szData)
+                hiim(blessed::span<blessed::byte> s) : 
+                    dictionary_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());
                 }
 
-                static uint32_t constexpr identifier() { return char2uint<_Order>("hiim"); }
+                static constexpr uint32_t identifier()
+                {
+                    return char2uint<_Order>("hiim");
+                }
 
             private:
             };

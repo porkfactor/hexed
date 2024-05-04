@@ -32,7 +32,13 @@ namespace hexed
             array_segment<_Order>::array_segment(blessed::span<blessed::byte> s) :
                 super(s)
             {
-                data_ = super::buffer().data().subspan(super::header_length());
+                payload_ = super::buffer().data().subspan(super::header_length());
+            }
+
+            template<blessed::endian _Order>
+            blessed::span<blessed::byte> array_segment<_Order>::payload() const noexcept
+            {
+                return payload_;
             }
 
             template<blessed::endian _Order>
@@ -50,7 +56,7 @@ namespace hexed
 
                 for(decltype(nItems) i = 0; i < nItems; ++i)
                 {
-                    offset += handler(data_.subspan(offset));
+                    offset += handler(payload_.subspan(offset));
                 }
             }
 
@@ -58,7 +64,13 @@ namespace hexed
             dictionary_segment<_Order>::dictionary_segment(blessed::span<blessed::byte> s) :
                 super(s)
             {
-                data_ = super::buffer().data().subspan(length() - super::header_length());
+                payload_ = super::buffer().data().subspan(super::header_length(), length() - super::header_length());
+            }
+
+            template<blessed::endian _Order>
+            blessed::span<blessed::byte> dictionary_segment<_Order>::payload() const noexcept
+            {
+                return payload_;
             }
 
             template<blessed::endian _Order>
@@ -82,16 +94,22 @@ namespace hexed
 
                 for(uint32_t i = 0; i < nItems; ++i)
                 {
-                    offset += handler(data_.subspan(offset));
+                    offset += handler(payload_.subspan(offset));
                 }
             }
 
             template<blessed::endian _Order>
             data_segment<_Order>::data_segment(blessed::span<blessed::byte> s) :
                 super(s),
-                content_(super::payload(length() - super::header_length()))
+                content_(super::data().subspan(super::header_length(), length() - super::header_length()))
             {
 
+            }
+
+            template<blessed::endian _Order>
+            blessed::span<blessed::byte> data_segment<_Order>::payload() const noexcept
+            {
+                return content_.data();
             }
 
             template<blessed::endian _Order>

@@ -15,15 +15,26 @@ namespace hexed
             public:
                 typedef enum
                 {
-                    track_metadata = 0x01,
-                    album_metadata = 0x00,
-                    subtype_hplm = 0x02,
-                    subtype_file = 0x04,
-                    subtype_halm = 0x09,
-                    subtype_hilm = 0x0b,
-                    subtype_hghm = 0x0c,
-                    purchased_track_metadata = 0x0d,
-                    subtype_hdfm = 0x10,
+                    track_metadata = 1,
+                    playlist_metadata = 2,
+                    file_metadata = 4,
+                    subtype_unknown_5 = 5,
+                    subtype_unknown_6 = 6,
+                    subtype_unknown_7 = 7,
+                    subtype_unknown_8 = 8,
+                    album_metadata = 9,
+                    subtype_unknown_10 = 10,
+                    subtype_hilm = 11,
+                    subtype_hghm = 12,
+                    purchased_track_metadata = 13,
+                    subtype_hdfm = 14,
+                    subtype_unknown_15 = 15,
+                    subtype_unknown_16 = 16,
+                    subtype_unknown_17 = 17,
+                    subtype_unknown_18 = 18,
+                    subtype_unknown_19 = 19,
+                    subtype_unknown_20 = 20,
+                    subtype_unknown_21 = 21,
                 } section_type;
 
                 hdsm(blessed::span<blessed::byte> s) :
@@ -32,9 +43,9 @@ namespace hexed
                     assert(this->mnemonic() == identifier());
                 }
 
-                uint32_t type() const
+                section_type type() const
                 {
-                    return this->buffer().uint32(12);
+                    return static_cast<section_type>(this->buffer().uint32(12));
                 }
 
                 static constexpr uint32_t identifier()

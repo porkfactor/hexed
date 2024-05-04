@@ -47,9 +47,14 @@ namespace hexed
                     assert(this->mnemonic() == identifier());
                 }
 
-                static uint32_t constexpr identifier() { return char2uint<_Order>("hohm"); }
+                static constexpr uint32_t identifier()
+                {
+                    return char2uint<_Order>("hohm"); 
+                }
 
-                uint32_t type() const { return this->buffer().uint32(12); }
+                uint32_t type() const {
+                    return this->buffer().uint32(12); 
+                }
 
                 std::string utf8() const { return ""; }
 

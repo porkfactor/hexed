@@ -13,13 +13,16 @@ namespace hexed
             class halm : public array_segment<_Order>
             {
             public:
-                halm(void const *data, size_t szData) :
-                    array_segment<_Order>(data, szData)
+                halm(blessed::span<blessed::byte> s) :
+                    array_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());
                 }
 
-                static uint32_t const identifier() { return char2uint<_Order>("halm"); }
+                static constexpr uint32_t identifier()
+                {
+                    return char2uint<_Order>("halm");
+                }
 
             private:
             };

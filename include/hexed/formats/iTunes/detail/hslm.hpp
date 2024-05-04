@@ -1,5 +1,5 @@
-#ifndef HEXED_ITUNES_DETAIL_HGHM_HPP_
-#define HEXED_ITUNES_DETAIL_HGHM_HPP_
+#ifndef HEXED_ITUNES_DETAIL_HSLM_HPP_
+#define HEXED_ITUNES_DETAIL_HSLM_HPP_
 
 #include <hexed/formats/iTunes/detail/segment.hpp>
 
@@ -10,10 +10,10 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class hghm : public array_segment<_Order>
+            class hslm : public array_segment<_Order>
             {
             public:
-                hghm(blessed::span<blessed::byte> s) :
+                hslm(blessed::span<blessed::byte> s) :
                     array_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());
@@ -21,7 +21,7 @@ namespace hexed
 
                 static constexpr uint32_t identifier()
                 {
-                    return char2uint<_Order>("hghm");
+                    return char2uint<_Order>("hslm");
                 }
 
             private:

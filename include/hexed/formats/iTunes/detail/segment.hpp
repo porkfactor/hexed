@@ -40,11 +40,6 @@ namespace hexed
                 uint32_t mnemonic() const noexcept;
                 std::size_t header_length() const noexcept;
 
-                inline blessed::span<blessed::byte> payload(std::size_t extent = blessed::dynamic_extent) const noexcept
-                {
-                    return data().subspan(header_length(), extent);
-                }
-
                 inline blessed::span<blessed::byte> const &data() const noexcept
                 {
                     return buffer_.data();
@@ -70,11 +65,13 @@ namespace hexed
 
                 std::size_t count() const noexcept;
 
+                inline blessed::span<blessed::byte> payload() const noexcept;
+
                 template<typename _Handler>
                 inline void foreach(_Handler &&handler);
 
             private:
-                blessed::span<blessed::byte> data_;
+                blessed::span<blessed::byte> payload_;
             };
 
             template <blessed::endian _Order>
@@ -88,11 +85,13 @@ namespace hexed
                 std::size_t count() const noexcept;
                 std::size_t length() const noexcept;
 
+                inline blessed::span<blessed::byte> payload() const noexcept;
+
                 template<typename _Handler>
                 inline void foreach(_Handler &&handler);
 
             private:
-                blessed::span<blessed::byte> data_;
+                blessed::span<blessed::byte> payload_;
             };
 
             template <blessed::endian _Order>
@@ -102,6 +101,8 @@ namespace hexed
                 using super = basic_segment<_Order>;
 
                 data_segment(blessed::span<blessed::byte> s);
+
+                inline blessed::span<blessed::byte> payload() const noexcept;
 
                 std::size_t length() const noexcept;
                 uint32_t type() const noexcept;
