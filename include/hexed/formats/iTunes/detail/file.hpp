@@ -16,7 +16,7 @@ namespace hexed
             public:
                 file(std::string const &);
 
-                blessed::span<blessed::byte> data() const;
+                blessed::span<blessed::byte const> data() const;
 
             private:
                 hexed::detail::MemoryMappedFile mapping_;

@@ -10,11 +10,11 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            class hghm : public array_segment<_Order>
+            class hghm : public dictionary_segment<_Order>
             {
             public:
-                hghm(blessed::span<blessed::byte> s) :
-                    array_segment<_Order>(s)
+                hghm(blessed::span<blessed::byte const> s) :
+                    dictionary_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());
                 }

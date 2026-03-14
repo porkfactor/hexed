@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.25.0)
 
 add_executable(tombed
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp

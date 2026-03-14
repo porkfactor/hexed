@@ -13,7 +13,7 @@ namespace hexed
             class htim : public dictionary_segment<_Order>
             {
             public:
-                htim(blessed::span<blessed::byte> s) : 
+                htim(blessed::span<blessed::byte const> s) : 
                     dictionary_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());

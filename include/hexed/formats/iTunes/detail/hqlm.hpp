@@ -13,7 +13,7 @@ namespace hexed
             class hqlm : public array_segment<_Order>
             {
             public:
-                hqlm(blessed::span<blessed::byte> s) :
+                hqlm(blessed::span<blessed::byte const> s) :
                     array_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());

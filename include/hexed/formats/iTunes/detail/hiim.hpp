@@ -13,7 +13,7 @@ namespace hexed
             class hiim : public dictionary_segment<_Order>
             {
             public:
-                hiim(blessed::span<blessed::byte> s) : 
+                hiim(blessed::span<blessed::byte const> s) : 
                     dictionary_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());

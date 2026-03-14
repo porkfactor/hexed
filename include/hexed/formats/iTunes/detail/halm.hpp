@@ -13,7 +13,7 @@ namespace hexed
             class halm : public array_segment<_Order>
             {
             public:
-                halm(blessed::span<blessed::byte> s) :
+                halm(blessed::span<blessed::byte const> s) :
                     array_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());

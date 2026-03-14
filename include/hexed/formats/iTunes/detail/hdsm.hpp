@@ -13,7 +13,9 @@ namespace hexed
             struct hdsm : public data_segment<_Order>
             {
             public:
-                typedef enum
+                using super = data_segment<_Order>;
+
+                enum section
                 {
                     track_metadata = 1,
                     playlist_metadata = 2,
@@ -35,17 +37,17 @@ namespace hexed
                     subtype_unknown_19 = 19,
                     subtype_unknown_20 = 20,
                     subtype_unknown_21 = 21,
-                } section_type;
+                };
 
-                hdsm(blessed::span<blessed::byte> s) :
+                hdsm(blessed::span<blessed::byte const> s) :
                     data_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());
                 }
 
-                section_type type() const
+                inline enum section type() const noexcept
                 {
-                    return static_cast<section_type>(this->buffer().uint32(12));
+                    return static_cast<section>(super::subtype());
                 }
 
                 static constexpr uint32_t identifier()

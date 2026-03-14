@@ -12,39 +12,18 @@ namespace hexed
         namespace detail
         {
             template<blessed::endian _Order>
-            basic_segment<_Order>::basic_segment(blessed::span<blessed::byte> s) :
-                buffer_(s)
+            basic_segment<_Order>::basic_segment(blessed::span<blessed::byte const> s) :
+                buffer_(s),
+                mnemonic_(buffer_.uint32(0)),
+                data_offset_(buffer_.uint32(4))
             {}
 
             template<blessed::endian _Order>
-            uint32_t basic_segment<_Order>::mnemonic() const noexcept
+            array_segment<_Order>::array_segment(blessed::span<blessed::byte const> s) :
+                super(s),
+                count_(super::buffer().uint32(8))
             {
-                return buffer_.uint32(0);
-            }
-
-            template<blessed::endian _Order>
-            std::size_t basic_segment<_Order>::header_length() const noexcept
-            {
-                return buffer_.uint32(4);
-            }
-
-            template<blessed::endian _Order>
-            array_segment<_Order>::array_segment(blessed::span<blessed::byte> s) :
-                super(s)
-            {
-                payload_ = super::buffer().data().subspan(super::header_length());
-            }
-
-            template<blessed::endian _Order>
-            blessed::span<blessed::byte> array_segment<_Order>::payload() const noexcept
-            {
-                return payload_;
-            }
-
-            template<blessed::endian _Order>
-            std::size_t array_segment<_Order>::count() const noexcept
-            {
-                return super::buffer().uint32(8);
+                payload_ = super::data();
             }
 
             template<blessed::endian _Order>
@@ -61,28 +40,19 @@ namespace hexed
             }
 
             template<blessed::endian _Order>
-            dictionary_segment<_Order>::dictionary_segment(blessed::span<blessed::byte> s) :
-                super(s)
+            dictionary_segment<_Order>::dictionary_segment(blessed::span<blessed::byte const> s) :
+                super(s),
+                length_(super::buffer().uint32(8)),
+                count_(super::buffer().uint32(12))
             {
-                payload_ = super::buffer().data().subspan(super::header_length(), length() - super::header_length());
+                //payload_ = super::data().subspan(0, length_);
+                payload_ = super::data().subspan(0);
             }
 
             template<blessed::endian _Order>
-            blessed::span<blessed::byte> dictionary_segment<_Order>::payload() const noexcept
+            blessed::span<blessed::byte const> dictionary_segment<_Order>::payload() const noexcept
             {
                 return payload_;
-            }
-
-            template<blessed::endian _Order>
-            std::size_t dictionary_segment<_Order>::length() const noexcept
-            {
-                return super::buffer().uint32(8);
-            }
-
-            template<blessed::endian _Order>
-            std::size_t dictionary_segment<_Order>::count() const noexcept
-            {
-                return super::buffer().uint32(12);
             }
 
             template<blessed::endian _Order>
@@ -99,29 +69,12 @@ namespace hexed
             }
 
             template<blessed::endian _Order>
-            data_segment<_Order>::data_segment(blessed::span<blessed::byte> s) :
+            data_segment<_Order>::data_segment(blessed::span<blessed::byte const> s) :
                 super(s),
-                content_(super::data().subspan(super::header_length(), length() - super::header_length()))
+                size_(super::buffer().uint32(8)),
+                subtype_(super::buffer().uint32(12))
             {
-
-            }
-
-            template<blessed::endian _Order>
-            blessed::span<blessed::byte> data_segment<_Order>::payload() const noexcept
-            {
-                return content_.data();
-            }
-
-            template<blessed::endian _Order>
-            std::size_t data_segment<_Order>::length() const noexcept
-            {
-                return super::buffer().uint32(8);
-            }
-
-            template<blessed::endian _Order>
-            uint32_t data_segment<_Order>::type() const noexcept
-            {
-                return super::buffer().uint32(12);
+                payload_ = super::data().subspan(0, size_ - super::data_offset());
             }
         }
     }

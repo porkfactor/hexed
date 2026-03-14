@@ -16,13 +16,18 @@ namespace hexed
             template <blessed::endian _Order>
             struct segment_buffer
             {
-                segment_buffer(blessed::span<blessed::byte> s) :
+                segment_buffer(blessed::span<blessed::byte const> s) :
                     data_(s)
                 {}
 
                 segment_buffer(segment_buffer const &other) :
                     data_(other.data_)
                 {}
+
+                inline std::size_t size() const noexcept
+                {
+                    return data_.size_bytes();
+                }
 
                 template <blessed::endian _O = _Order, typename std::enable_if<_O == blessed::endian::big, bool>::type = true>
                 uint16_t uint16(size_t offset) const
@@ -60,7 +65,7 @@ namespace hexed
                     return blessed::reinterpret_as<_Type const>(data_.subspan(offset));
                 }
 
-                inline blessed::span<blessed::byte> const &data() const noexcept
+                inline blessed::span<blessed::byte const> const &data() const noexcept
                 {
                     return data_;
                 }
@@ -75,7 +80,7 @@ namespace hexed
                 }
 
             private:
-                blessed::span<blessed::byte> data_;
+                blessed::span<blessed::byte const> data_;
             };
         }
     }

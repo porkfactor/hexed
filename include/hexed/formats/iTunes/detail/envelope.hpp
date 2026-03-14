@@ -15,8 +15,7 @@ namespace hexed
             public:
                 envelope(blessed::span<blessed::byte> s) :
                     array_segment<_Order>(s)
-                {
-                }
+                {}
 
                 uint16_t major_version() const { return this->buffer().uint16(12); }
                 uint16_t minor_version() const { return this->buffer().uint16(14); }

@@ -13,7 +13,7 @@ namespace hexed
             class hdfm : public basic_segment<_Order>
             {
             public:
-                hdfm(blessed::span<blessed::byte> s) :
+                hdfm(blessed::span<blessed::byte const> s) :
                     basic_segment<_Order>(s)
                 {
                     assert(this->mnemonic() == identifier());

@@ -19,7 +19,7 @@ namespace hexed
             ::memset(&stream, 0, sizeof(stream));
 
             stream.avail_in = std::distance(first, last);
-            stream.next_in = reinterpret_cast<Bytef *>(std::addressof(*first));
+            stream.next_in = const_cast<Bytef *>(reinterpret_cast<Bytef const *>(std::addressof(*first)));
 
             inflateInit(&stream);
 
