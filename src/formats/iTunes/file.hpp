@@ -3,6 +3,7 @@
 
 #include <blessed/memory.hpp>
 #include <blessed/span.hpp>
+#include <blessed/bit.hpp>
 #include <hexed/detail/MemoryMappedFile.hpp>
 
 namespace hexed
@@ -18,7 +19,7 @@ namespace hexed
 
                 blessed::span<blessed::byte const> data() const;
 
-            private:
+            protected:
                 hexed::detail::MemoryMappedFile mapping_;
                 blessed::unique_c_ptr<blessed::byte> data_;
                 size_t szData_;
@@ -26,7 +27,5 @@ namespace hexed
         }
     }
 }
-
-#include <hexed/formats/iTunes/detail/impl/file.hpp>
 
 #endif

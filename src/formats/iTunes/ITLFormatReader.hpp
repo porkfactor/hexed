@@ -20,6 +20,4 @@ namespace hexed
     }
 }
 
-#include <hexed/formats/iTunes/impl/ITLFormatReader.hpp>
-
 #endif

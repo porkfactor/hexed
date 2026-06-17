@@ -1,102 +1,11 @@
-#ifndef HEXED_ITUNES_ITL_FORMAT_READER_IPP_
-#define HEXED_ITUNES_ITL_FORMAT_READER_IPP_
-
 #include <hexed/Log.hpp>
-#include <hexed/formats/iTunes/detail/file.hpp>
+#include <hexed/Library.hpp>
+#include <hexed/detail/Compression.hpp>
+#include <hexed/detail/Encryption.hpp>
 
-#include <hexed/formats/iTunes/detail/haim.hpp>
-#include <hexed/formats/iTunes/detail/halm.hpp>
-#include <hexed/formats/iTunes/detail/hdsm.hpp>
-#include <hexed/formats/iTunes/detail/hghm.hpp>
-#include <hexed/formats/iTunes/detail/hilm.hpp>
-#include <hexed/formats/iTunes/detail/hohm.hpp>
-#include <hexed/formats/iTunes/detail/hplm.hpp>
-#include <hexed/formats/iTunes/detail/hqlm.hpp>
-#include <hexed/formats/iTunes/detail/hslm.hpp>
-#include <hexed/formats/iTunes/detail/htim.hpp>
-#include <hexed/formats/iTunes/detail/htlm.hpp>
-
-#include <hexed/formats/iTunes/detail/musicdb.hpp>
-
-void log_data(blessed::span<blessed::byte const> s)
-{
-    static std::size_t constexpr max_words = 4;
-    static std::size_t constexpr max_bytes = max_words * sizeof(uint32_t);
-
-    blessed::span<uint32_t const> data = blessed::reinterpret_as<uint32_t>(s);
-    size_t offset = 0;
-
-    char line[128];
-
-    for(size_t i = 0; i < data.size(); i += 8)
-    {
-        offset = 0;
-        size_t limit = std::min(max_bytes, s.size() - (i * sizeof(uint32_t)));
-
-        for(size_t j = 0; j < 4; ++j)
-        {
-            if((i + j) >= data.size())
-                break;
-
-            if(j)
-            {
-                offset += snprintf(line + offset, sizeof(line) - offset, " %08x", be32toh(data[i + j]));
-            }
-            else
-            {
-                offset += snprintf(line + offset, sizeof(line) - offset, "%08x", be32toh(data[i + j]));
-            }
-        }
-
-        offset += snprintf(line + offset, sizeof(line) - offset, " ");
-
-        for (size_t j = 0; j < limit; ++j)
-        {
-            offset += snprintf(line + offset, sizeof(line) - offset, "%02x", s[(i * 4) + j]);
-        }
-
-        offset += snprintf(line + offset, sizeof(line) - offset, "%-*s ", static_cast<int>(max_bytes - limit) ," ");
-
-        for (size_t j = 0; j < limit; ++j)
-        {
-            char c = static_cast<char>(s[(i * 4) + j]);
-            offset += snprintf(line + offset, sizeof(line) - offset, "%c", isprint(c) && !iscntrl(c) ? c : '.');
-        }
-
-        fwrite(line, sizeof(char), offset, stdout);
-        fputc('\n', stdout);
-    }
-
-    fflush(stdout);
-}
-
-void log_uint32(blessed::span<blessed::byte const> s)
-{
-    blessed::span<uint32_t const> data = blessed::reinterpret_as<uint32_t>(s);
-    size_t offset = 0;
-
-    for(size_t i = 0; i < data.size(); i += 8)
-    {
-        for(size_t j = 0; j < 8; ++j)
-        {
-            if((offset + j) >= data.size())
-                break;
-
-            if(j)
-            {
-                fprintf(stdout, " %08x", be32toh(data[offset + j]));
-            }
-            else
-            {
-                fprintf(stdout, "%08x", be32toh(data[offset + j]));
-            }
-        }
-
-        printf("\n");
-
-        offset += 8;
-    }
-}
+#include <formats/iTunes/file.hpp>
+#include <formats/iTunes/itl.hpp>
+#include <formats/iTunes/ITLFormatReader.hpp>
 
 namespace hexed
 {
@@ -289,26 +198,21 @@ namespace hexed
 
             htlm.foreach([&track](blessed::span<blessed::byte const> s)
             {
-                static std::map<uint32_t, std::function<std::size_t(detail::TrackAdapter &, blessed::span<blessed::byte const>)>> const functors =
-                {
-                    { detail::hohm<blessed::endian::big>::identifier(), process_track_attribute<blessed::endian::big> },
-                    { detail::hohm<blessed::endian::little>::identifier(), process_track_attribute<blessed::endian::little> },
-                };
-
                 detail::basic_segment<> segment(s);
-                size_t offset{};
+                std::size_t offset{};
 
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
+                switch(segment.mnemonic())
                 {
-                    offset = it->second(track, s);
-                }
-                else
-                {
+                case detail::hohm<blessed::endian::big>::identifier():
+                    offset = process_track_attribute<blessed::endian::big>(track, s);
+                    break;
+                case detail::hohm<blessed::endian::little>::identifier():
+                    offset = process_track_attribute<blessed::endian::little>(track, s);
+                    break;
+                default:
                     INFO("unexpected child {}", segment.mnemonic());
                     throw std::runtime_error("unexpected child of htlm record");
-                };
+                }
 
                 return offset;
             });
@@ -328,26 +232,21 @@ namespace hexed
 
             header.foreach([&track](blessed::span<blessed::byte const> s)
             {
-                static std::map<uint32_t, std::function<std::size_t(detail::TrackAdapter &, blessed::span<blessed::byte const>)>> const functors =
-                {
-                    { detail::hohm<blessed::endian::big>::identifier(), process_track_attribute<blessed::endian::big> },
-                    { detail::hohm<blessed::endian::little>::identifier(), process_track_attribute<blessed::endian::little> },
-                };
-
                 detail::basic_segment<> segment(s);
-                size_t offset{};
+                std::size_t offset{};
 
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
+                switch(segment.mnemonic())
                 {
-                    offset = it->second(track, s);
-                }
-                else
-                {
+                case detail::hohm<blessed::endian::big>::identifier():
+                    offset = process_track_attribute<blessed::endian::big>(track, s);
+                    break;
+                case detail::hohm<blessed::endian::little>::identifier():
+                    offset = process_track_attribute<blessed::endian::little>(track, s);
+                    break;
+                default:
                     INFO("unexpected child {:08x}", segment.mnemonic());
                     throw std::runtime_error("unexpected child of htim record");
-                };
+                }
 
                 return offset;
             });
@@ -366,26 +265,19 @@ namespace hexed
 
             header.foreach([&library](blessed::span<blessed::byte const> s)
             {
-                static std::map<uint32_t, std::function<std::size_t(detail::TrackAdapter &, blessed::span<blessed::byte const>)>> const functors =
-                {
-                    //{ detail::htlm<blessed::endian::big>::identifier(), process_htlm<blessed::endian::big> },
-                    //{ detail::htlm<blessed::endian::little>::identifier(), process_htlm<blessed::endian::little> },
-                    { detail::htim<blessed::endian::big>::identifier(), process_htim<blessed::endian::big> },
-                    { detail::htim<blessed::endian::little>::identifier(), process_htim<blessed::endian::little> },
-                };
-
                 detail::TrackAdapter track;
                 detail::basic_segment<> segment(s);
                 size_t offset{};
 
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
+                switch(segment.mnemonic())
                 {
-                    offset = it->second(track, s);
-                }
-                else
-                {
+                case detail::htim<blessed::endian::big>::identifier():
+                    offset = process_htim<blessed::endian::big>(track, s);
+                    break;
+                case detail::htim<blessed::endian::little>::identifier():
+                    offset = process_htim<blessed::endian::little>(track, s);
+                    break;
+                default:
                     INFO("unexpected child {:08x}", segment.mnemonic());
                     throw std::runtime_error("unexpected child of htlm record");
                 }
@@ -407,28 +299,23 @@ namespace hexed
 
             header.foreach([&library](blessed::span<blessed::byte const> s)
             {
-                static std::map<uint32_t, std::function<std::size_t(detail::TrackAdapter &, blessed::span<blessed::byte const>)>> const functors =
-                {
-                    { detail::htim<blessed::endian::big>::identifier(), process_htim<blessed::endian::big> },
-                    { detail::htim<blessed::endian::little>::identifier(), process_htim<blessed::endian::little> },
-                };
-
                 detail::TrackAdapter track;
                 detail::basic_segment<> segment(s);
                 size_t offset{};
 
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
+                switch (segment.mnemonic())
                 {
-                    offset = it->second(track, s);
-                }
-                else
-                {
+                case detail::htim<blessed::endian::big>::identifier():
+                    offset = process_htim<blessed::endian::big>(track, s);
+                    break;
+                case detail::htim<blessed::endian::little>::identifier():
+                    offset = process_htim<blessed::endian::little>(track, s);
+                    break;
+                default:
                     INFO("unexpected child {}", segment.mnemonic());
                     throw std::runtime_error("unexpected child of htlm record");
                 }
-
+            
                 return offset;
             });
 
@@ -459,43 +346,16 @@ namespace hexed
         }
 
         template<blessed::endian _Order>
-        static std::size_t process_haim(detail::AlbumAdapter &album, blessed::span<blessed::byte const> data)
+        static std::size_t process_haim(detail::AlbumAdapter &library, blessed::span<blessed::byte const> data)
         {
             using haim = detail::haim<_Order>;
 
             haim header(data);
+            // INFO("haim : segment {0:x} header {1} payload {2} subutype {3:08x}", header.mnemonic(), header.header().size(), header.payload().size(), header.subtype());
 
-            INFO("haim : segment {0:x} header {1} payload {2} count {3}", header.mnemonic(), header.header().size(), header.payload().size(), static_cast<int>(header.count()));
+            // album.process(header);
 
-            log_data(header.header());
-
-            header.foreach([&album](blessed::span<blessed::byte const> s)
-            {
-                static std::map<uint32_t, std::function<std::size_t(detail::AlbumAdapter &, blessed::span<blessed::byte const>)>> const functors =
-                {
-                    { detail::hohm<blessed::endian::big>::identifier(), process_album_attribute<blessed::endian::big> },
-                    { detail::hohm<blessed::endian::little>::identifier(), process_album_attribute<blessed::endian::little> },
-                };
-
-                detail::basic_segment<> segment(s);
-                size_t offset{};
-
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
-                {
-                    offset = it->second(album, s);
-                }
-                else
-                {
-                    INFO("unexpected child {:08x}", segment.mnemonic());
-                    throw std::runtime_error("unexpected child of htim record");
-                };
-
-                return offset;
-            });
-
-            return header.length();
+            return header.size();
         }
 
         template<blessed::endian _Order>
@@ -509,24 +369,19 @@ namespace hexed
 
             header.foreach([&library](blessed::span<blessed::byte const> s)
             {
-                static std::map<uint32_t, std::function<std::size_t(detail::AlbumAdapter &, blessed::span<blessed::byte const>)>> const functors =
-                {
-                    { detail::haim<blessed::endian::big>::identifier(), process_haim<blessed::endian::big> },
-                    { detail::haim<blessed::endian::little>::identifier(), process_haim<blessed::endian::little> },
-                };
-
                 detail::AlbumAdapter album;
                 detail::basic_segment<> segment(s);
                 size_t offset{};
 
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
+                switch (segment.mnemonic())
                 {
-                    offset = it->second(album, s);
-                }
-                else
-                {
+                case detail::haim<blessed::endian::big>::identifier():
+                    offset = process_haim<blessed::endian::big>(album, s);
+                    break;
+                case detail::haim<blessed::endian::little>::identifier():
+                    offset = process_haim<blessed::endian::little>(album, s);
+                    break;
+                default:
                     INFO("unexpected child {}", segment.mnemonic());
                     throw std::runtime_error("unexpected child of htlm record");
                 }
@@ -680,39 +535,74 @@ namespace hexed
         {
             using hdsm = detail::hdsm<_Order>;
 
-            static std::map<typename hdsm::section, std::function<size_t(detail::LibraryAdapter &, blessed::span<blessed::byte const>)>> const functors =
-            {
-                { hdsm::track_metadata, process_track_metadata<_Order> },
-                { hdsm::playlist_metadata, process_playlist_metadata<_Order> },
-                { hdsm::file_metadata, process_file_metadata<_Order> },
-                { hdsm::subtype_unknown_5, process_subtype_5<_Order> },
-                { hdsm::subtype_unknown_6, process_subtype_6<_Order> },
-                { hdsm::subtype_unknown_7, process_subtype_7<_Order> },
-                { hdsm::subtype_unknown_8, process_subtype_8<_Order> },
-                { hdsm::album_metadata, process_album_metadata<_Order> },
-                { hdsm::subtype_unknown_10, process_subtype_10<_Order> },
-                { hdsm::subtype_hilm, process_hilm<_Order> },
-                { hdsm::subtype_hghm, process_hghm<_Order> },
-                { hdsm::purchased_track_metadata, process_purchased_track_metadata<_Order> },
-                { hdsm::subtype_hplm, process_hplm<_Order> },
-                { hdsm::subtype_unknown_15, process_subtype_15<_Order> },
-                { hdsm::subtype_unknown_16, process_subtype_16<_Order> },
-                { hdsm::subtype_unknown_17, process_subtype_17<_Order> },
-                { hdsm::subtype_unknown_18, process_subtype_18<_Order> },
-                { hdsm::subtype_unknown_19, process_subtype_19<_Order> },
-                { hdsm::subtype_unknown_20, process_subtype_20<_Order> },
-                { hdsm::subtype_unknown_21, process_subtype_21<_Order> },
-            };
-
             hdsm header(data);
 
             INFO("hdsm : segment {0:x} header {1} payload {2} size {3} type {4}", header.mnemonic(), header.header().size(), header.payload().size(), header.size(), static_cast<int>(header.type()));
 
-            auto it = functors.find(header.type());
-
-            if(it != functors.end())
+            switch (header.type())
             {
-                it->second(library, header.payload());
+            case hdsm::track_metadata:
+                process_track_metadata<_Order>(library, header.payload());
+                break;
+            case hdsm::playlist_metadata:
+                process_playlist_metadata<_Order>(library, header.payload());
+                break;
+            case hdsm::file_metadata:
+                process_file_metadata<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_5:
+                process_subtype_5<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_6:
+                process_subtype_6<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_7:
+                process_subtype_7<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_8:
+                process_subtype_8<_Order>(library, header.payload());
+                break;
+            case hdsm::album_metadata:
+                process_album_metadata<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_10:
+                process_subtype_10<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_hilm:
+                process_hilm<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_hghm:
+                process_hghm<_Order>(library, header.payload());
+                break;
+            case hdsm::purchased_track_metadata:
+                process_purchased_track_metadata<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_hplm:
+                process_hplm<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_15:
+                process_subtype_15<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_16:
+                process_subtype_16<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_17:
+                process_subtype_17<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_18:
+                process_subtype_18<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_19:
+                process_subtype_19<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_20:
+                process_subtype_20<_Order>(library, header.payload());
+                break;
+            case hdsm::subtype_unknown_21:
+                process_subtype_21<_Order>(library, header.payload());
+                break;
+            default:
+                break;
             }
 
             return header.size();
@@ -736,111 +626,71 @@ namespace hexed
 
                 INFO("envelope : {0:x} header {1} data {2}", segment.mnemonic(), segment.header().size(), segment.data().size());
 
-                static std::map<uint32_t, std::function<size_t(detail::LibraryAdapter &, blessed::span<blessed::byte const>)>> const functors =
+                switch (segment.mnemonic())
                 {
-                    { detail::hdsm<blessed::endian::big>::identifier(), process_hdsm<blessed::endian::big> },
-                    { detail::hdsm<blessed::endian::little>::identifier(), process_hdsm<blessed::endian::little> },
-                };
-
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
-                {
-                    offset += it->second(library, sub);
-                }
-                else
-                {
+                case detail::hdsm<blessed::endian::big>::identifier():
+                    offset += process_hdsm<blessed::endian::little>(library, sub);
+                    break;
+                case detail::hdsm<blessed::endian::little>::identifier():
+                    offset += process_hdsm<blessed::endian::little>(library, sub);
+                    break;
+                default:
                     ERROR("unexpected child of hdfm: {0:08x}", segment.mnemonic());
                     throw std::runtime_error("unexpected child of hdfm");
                 }
             }
         }
 
-        template<blessed::endian _Order>
-        static size_t process_amsh(detail::LibraryAdapter &library, blessed::span<blessed::byte const> data)
+        class ITLFile : public detail::file
         {
-            using amsh = detail::amsh<_Order>;
-
-            static std::map<typename amsh::section, std::function<size_t(detail::LibraryAdapter &, blessed::span<blessed::byte const>)>> const functors =
+        public:
+            ITLFile(std::string const &path) :
+                file(path)
             {
-                { amsh::track_metadata, process_track_metadata<_Order> },
-                { amsh::playlist_metadata, process_playlist_metadata<_Order> },
-                { amsh::file_metadata, process_file_metadata<_Order> },
-                { amsh::subtype_unknown_5, process_subtype_5<_Order> },
-                { amsh::subtype_unknown_6, process_subtype_6<_Order> },
-                { amsh::subtype_unknown_7, process_subtype_7<_Order> },
-                { amsh::subtype_unknown_8, process_subtype_8<_Order> },
-                { amsh::album_metadata, process_album_metadata<_Order> },
-                { amsh::subtype_unknown_10, process_subtype_10<_Order> },
-                { amsh::subtype_hilm, process_hilm<_Order> },
-                { amsh::subtype_hghm, process_hghm<_Order> },
-                { amsh::purchased_track_metadata, process_purchased_track_metadata<_Order> },
-                { amsh::subtype_hplm, process_hplm<_Order> },
-                { amsh::subtype_unknown_15, process_subtype_15<_Order> },
-                { amsh::subtype_unknown_16, process_subtype_16<_Order> },
-                { amsh::subtype_unknown_17, process_subtype_17<_Order> },
-                { amsh::subtype_unknown_18, process_subtype_18<_Order> },
-                { amsh::subtype_unknown_19, process_subtype_19<_Order> },
-                { amsh::subtype_unknown_20, process_subtype_20<_Order> },
-                { amsh::subtype_unknown_21, process_subtype_21<_Order> },
-            };
+                detail::basic_segment<blessed::endian::native> seg(mapping_.data());
 
-            amsh header(data);
-
-            INFO("hsma : segment {0:x} header {1} payload {2} size {3} type {4}", header.mnemonic(), header.header().size(), header.payload().size(), header.size(), static_cast<int>(header.type()));
-
-            auto it = functors.find(header.type());
-
-            if(it != functors.end())
-            {
-                it->second(library, header.payload());
-            }
-
-            return header.size();
-        }
-
-        template<blessed::endian _Order>
-        static void process_amfh(detail::LibraryAdapter &library, blessed::span<blessed::byte const> data)
-        {
-            using hfma = detail::hfma<_Order>;
-
-            hfma envelope(data);
-
-            auto p = envelope.data();
-
-            std::size_t offset{};
-
-            while(offset < p.size())
-            {
-                auto sub = p.subspan(offset);
-                detail::basic_segment<> segment(sub);
-
-                INFO("hfma : {0:x} header {1} data {2}", segment.mnemonic(), segment.header().size(), segment.data().size());
-
-                static std::map<uint32_t, std::function<size_t(detail::LibraryAdapter &, blessed::span<blessed::byte const>)>> const functors =
+                switch (seg.mnemonic())
                 {
-                    { detail::amsh<blessed::endian::big>::identifier(), process_amsh<blessed::endian::big> },
-                    { detail::amsh<blessed::endian::little>::identifier(), process_amsh<blessed::endian::little> },
-                };
-
-                auto it = functors.find(segment.mnemonic());
-
-                if(it != functors.end())
-                {
-                    offset += it->second(library, sub);
-                }
-                else
-                {
-                    ERROR("unexpected child of amfh: {0:08x}", segment.mnemonic());
-                    throw std::runtime_error("unexpected child of amfh");
+                case detail::hdfm<blessed::endian::big>::identifier():
+                    inflate<blessed::endian::big>();
+                    break;
+                case detail::hdfm<blessed::endian::little>::identifier():
+                    inflate<blessed::endian::little>();
+                    break;
                 }
             }
-        }
+
+            template<blessed::endian _Order>
+            void inflate()
+            {
+                using hdfm = detail::hdfm<_Order>;
+                
+                hdfm envelope(mapping_.data());
+
+                blessed::unique_c_ptr<blessed::byte> raw(blessed::malloc_unique<blessed::byte>(envelope.crypt_length()));
+
+                auto payload = envelope.payload();
+
+                hexed::detail::aes128decrypt(raw.get(), envelope.crypt_length(), static_cast<void const *>(payload.data()), envelope.crypt_length());
+
+                std::copy(raw.get(), raw.get() + envelope.crypt_length(), const_cast<blessed::byte *>(payload.data()));
+
+                std::vector<blessed::byte> v;
+                hexed::detail::inflate(payload.begin(), payload.end(), std::back_inserter(v));
+
+                data_ = blessed::malloc_unique<blessed::byte>(v.size() + envelope.header().size());
+
+                auto end = std::copy(envelope.header().begin(), envelope.header().end(), data_.get());
+                end = std::copy(v.begin(), v.end(), end);
+
+                szData_ = static_cast<std::size_t>(reinterpret_cast<uintptr_t>(end) - reinterpret_cast<uintptr_t>(data_.get()));
+            }
+        };
 
         std::unique_ptr<hexed::Library> ITLFormatReader::read(std::string const &path)
         {
             std::unique_ptr<hexed::Library> library(new hexed::ImmutableLibrary());
-            detail::file f(path);
+            ITLFile f(path);
 
             detail::basic_segment<> segment(f.data());
 
@@ -856,12 +706,6 @@ namespace hexed
             case detail::hdfm<blessed::endian::little>::identifier():
                 process_hdfm<blessed::endian::little>(l, f.data());
                 break;
-            case detail::hfma<blessed::endian::little>::identifier():
-                process_amfh<blessed::endian::little>(l, f.data());
-                break;
-            case detail::hfma<blessed::endian::big>::identifier():
-                process_amfh<blessed::endian::big>(l, f.data());
-                break;
             default:
                 library.reset();
                 break;
@@ -871,5 +715,3 @@ namespace hexed
         }
     }
 }
-
-#endif

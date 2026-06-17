@@ -34,6 +34,4 @@ namespace hexed
     };
 }
 
-#include <hexed/impl/Library.hpp>
-
 #endif

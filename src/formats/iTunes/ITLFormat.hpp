@@ -13,11 +13,9 @@ namespace hexed
             ITLFormat();
             ~ITLFormat() override;
 
-            hexed::LibraryFormatReader *createReader() override;
+            std::shared_ptr<hexed::LibraryFormatReader> createReader(void) override;
         };
     }
 }
-
-#include <hexed/formats/iTunes/impl/ITLFormat.hpp>
 
 #endif

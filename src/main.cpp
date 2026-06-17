@@ -6,10 +6,14 @@ int main(int argc, char const *argv[])
 
     lfm.registerBasicFormats();
 
-    auto f = lfm.findFormatForFileExtension("itl");
-    auto r = f->createReader();
+    auto candidates = lfm.scan();
 
-    r->read(argv[1]);
+    for (auto const &candidate : candidates)
+    {
+        auto r = candidate.format()->createReader();
+    
+        r->read(candidate.path());
+    }
 
     return 0;
 }

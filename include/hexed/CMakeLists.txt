@@ -7,9 +7,9 @@ target_sources(hexed PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/LibraryFormatManager.hpp
     ${CMAKE_CURRENT_LIST_DIR}/LibraryFormatReader.hpp
     ${CMAKE_CURRENT_LIST_DIR}/LibraryFormatWriter.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/Log.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Playlist.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/Track.hpp    
+    ${CMAKE_CURRENT_LIST_DIR}/Track.hpp
 )
 
 add_subdirectory("detail")
-add_subdirectory("impl")

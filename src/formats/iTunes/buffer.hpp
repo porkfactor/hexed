@@ -29,6 +29,21 @@ namespace hexed
                     return data_.size_bytes();
                 }
 
+                inline uint16_t native_uint16(size_t offset)
+                {
+                    return value<uint16_t>(offset);
+                }
+
+                inline uint32_t native_uint32(size_t offset)
+                {
+                    return value<uint32_t>(offset);
+                }
+
+                inline uint64_t native_uint64(size_t offset)
+                {
+                    return value<uint64_t>(offset);
+                }
+
                 template <blessed::endian _O = _Order, typename std::enable_if<_O == blessed::endian::big, bool>::type = true>
                 uint16_t uint16(size_t offset) const
                 {
@@ -57,6 +72,12 @@ namespace hexed
                 uint64_t uint64(size_t offset) const
                 {
                     return be64toh(value<uint64_t>(offset));
+                }
+
+                template <blessed::endian _O = _Order, typename std::enable_if<_O == blessed::endian::little, bool>::type = true>
+                uint64_t uint64(size_t offset) const
+                {
+                    return le64toh(value<uint64_t>(offset));
                 }
 
                 template <typename _Type = void>

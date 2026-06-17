@@ -9,7 +9,7 @@ namespace hexed
     namespace detail
     {
         template<typename _InputIterator, typename _OutputIterator>
-        _OutputIterator inflate(_InputIterator first, _InputIterator last, _OutputIterator dest)
+        static _OutputIterator inflate(_InputIterator first, _InputIterator last, _OutputIterator dest)
         {
             z_stream stream;
             int result{Z_OK};
@@ -39,7 +39,7 @@ namespace hexed
             return dest;
         }
 
-        size_t inflate(void *dest, size_t szDest, void const *source, size_t szSource)
+        static size_t inflate(void *dest, size_t szDest, void const *source, size_t szSource)
         {
         #if 0
             compression_algorithm algorithm = COMPRESSION_LZBITMAP;

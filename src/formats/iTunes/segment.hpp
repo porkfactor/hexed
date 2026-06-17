@@ -1,10 +1,11 @@
 #ifndef HEXED_ITUNES_DETAIL_SEGMENT_HPP_
 #define HEXED_ITUNES_DETAIL_SEGMENT_HPP_
 
+#include <locale>
 #include <codecvt>
 #include <blessed/span.hpp>
 
-#include <hexed/formats/iTunes/detail/buffer.hpp>
+#include <formats/iTunes/buffer.hpp>
 
 namespace hexed
 {
@@ -52,7 +53,11 @@ namespace hexed
             struct basic_segment
             {
             public:
-                basic_segment(blessed::span<blessed::byte const> s);
+                basic_segment(blessed::span<blessed::byte const> s) :
+                    buffer_(s),
+                    mnemonic_(buffer_.native_uint32(0)),
+                    data_offset_(buffer_.uint32(4))
+                {}
 
                 inline uint32_t mnemonic() const noexcept
                 {
@@ -97,7 +102,12 @@ namespace hexed
             public:
                 using super = basic_segment<_Order>;
 
-                array_segment(blessed::span<blessed::byte const> s);
+                array_segment(blessed::span<blessed::byte const> s) :
+                    super(s),
+                    count_(super::buffer().uint32(8))
+                {
+                    payload_ = super::data();
+                }
 
                 inline std::size_t size() const noexcept
                 {
@@ -123,7 +133,16 @@ namespace hexed
                 const_iterator cend();
             #endif
                 template<typename _Handler>
-                inline void foreach(_Handler &&handler);
+                inline void foreach(_Handler &&handler)
+                {
+                    auto nItems = count();
+                    std::size_t offset{};
+
+                    for(decltype(nItems) i = 0; i < nItems; ++i)
+                    {
+                        offset += handler(payload_.subspan(offset));
+                    }
+                }
 
             private:
                 blessed::span<blessed::byte const> payload_;
@@ -136,7 +155,14 @@ namespace hexed
             public:
                 using super = basic_segment<_Order>;
 
-                dictionary_segment(blessed::span<blessed::byte const> s);
+                dictionary_segment(blessed::span<blessed::byte const> s) :
+                    super(s),
+                    length_(super::buffer().uint32(8)),
+                    count_(super::buffer().uint32(12))
+                {
+                    //payload_ = super::data().subspan(0, length_);
+                    payload_ = super::data().subspan(0);
+                }
 
                 inline std::size_t size() const noexcept
                 {
@@ -153,10 +179,22 @@ namespace hexed
                     return length_;
                 }
 
-                inline blessed::span<blessed::byte const> payload() const noexcept;
+                inline blessed::span<blessed::byte const> payload() const noexcept
+                {
+                    return payload_;
+                }
 
                 template<typename _Handler>
-                inline void foreach(_Handler &&handler);
+                inline void foreach(_Handler &&handler)
+                {
+                    uint32_t nItems = count();
+                    size_t offset{};
+
+                    for(uint32_t i = 0; i < nItems; ++i)
+                    {
+                        offset += handler(payload_.subspan(offset));
+                    }
+                }
 
             private:
                 blessed::span<blessed::byte const> payload_;
@@ -170,7 +208,13 @@ namespace hexed
             public:
                 using super = basic_segment<_Order>;
 
-                data_segment(blessed::span<blessed::byte const> s);
+                data_segment(blessed::span<blessed::byte const> s) :
+                    super(s),
+                    size_(super::buffer().uint32(8)),
+                    subtype_(super::buffer().uint32(12))
+                {
+                    payload_ = super::data().subspan(0, size_ - super::data_offset());
+                }
 
                 inline blessed::span<blessed::byte const> payload() const noexcept
                 {
@@ -275,7 +319,5 @@ namespace hexed
         }
     }
 }
-
-#include <hexed/formats/iTunes/detail/impl/segment.hpp>
 
 #endif
