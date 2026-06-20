@@ -7,7 +7,7 @@ void log_data(blessed::span<blessed::byte const> s)
     static std::size_t constexpr max_words = 4;
     static std::size_t constexpr max_bytes = max_words * sizeof(uint32_t);
 
-    blessed::span<uint32_t const> data = blessed::reinterpret_as<uint32_t>(s);
+    blessed::span<uint32_t const> data = blessed::span_cast<uint32_t>(s);
     size_t offset = 0;
 
     char line[128];
@@ -56,7 +56,7 @@ void log_data(blessed::span<blessed::byte const> s)
 
 void log_uint32(blessed::span<blessed::byte const> s)
 {
-    blessed::span<uint32_t const> data = blessed::reinterpret_as<uint32_t>(s);
+    blessed::span<uint32_t const> data = blessed::span_cast<uint32_t>(s);
     size_t offset = 0;
 
     for(size_t i = 0; i < data.size(); i += 8)

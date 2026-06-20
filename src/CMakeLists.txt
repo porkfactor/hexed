@@ -24,6 +24,7 @@ set_target_properties(tombed PROPERTIES
 target_link_libraries(tombed PUBLIC
     blessed
     hexed
+    cursed
 
     $<LINK_LIBRARY:FRAMEWORK,CoreFoundation>
 )

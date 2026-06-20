@@ -289,27 +289,27 @@ namespace hexed
             private:
                 static std::string to_u8string(blessed::span<blessed::byte const> s)
                 {
-                    auto b = blessed::reinterpret_as<char>(s);
+                    auto b = blessed::span_cast<char>(s);
                     return std::string(b.begin(), b.end());
                 }
 
                 static std::u16string to_u16string(blessed::span<blessed::byte const> s)
                 {
-                    auto b = blessed::reinterpret_as<char16_t>(s);
+                    auto b = blessed::span_cast<char16_t>(s);
                     return std::u16string(b.begin(), b.end());
                 }
 
                 static std::string utf16_to_utf8(blessed::span<blessed::byte const> s)
                 {
                     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
-                    auto b = blessed::reinterpret_as<char16_t const>(s);
+                    auto b = blessed::span_cast<char16_t const>(s);
                     return cvt.to_bytes(b.data(), b.data() + b.size());
                 }
 
                 static std::u16string utf8_to_utf16(blessed::span<blessed::byte const> s)
                 {
                     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> cvt;
-                    auto b = blessed::reinterpret_as<char const>(s);
+                    auto b = blessed::span_cast<char const>(s);
                     return cvt.from_bytes(b.data(), b.data() + b.size());
                 }
 
